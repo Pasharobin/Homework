@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>N.23</title>
+</head>
+<body>
+
+    <form action="http://fe.it-academy.by/TestForm.php " id="form1"></form>
+    <form action="http://fe.it-academy.by/TestForm.php " id="form2"></form>
+
+    <script>
+
+        var formDef1 = [{label:'Название сайта:',kind:'longtext',name:'sitename'},
+  {label:'URL сайта:',kind:'longtext',name:'siteurl'},
+  {label:'Посетителей в сутки:',kind:'number',name:'visitors'},
+  {label:'E-mail для связи:',kind:'shorttext',name:'email'},
+  {label:'Рубрика каталога:',kind:'combo',name:'division',
+    variants:[{text:'здоровье',value:1},{text:'домашний уют',value:2},{text:'бытовая техника',value:3}]},
+  {label:'Размещение:',kind:'radio',name:'payment',
+    variants:[{text:'бесплатное',value:1},{text:'платное',value:2},{text:'VIP',value:3}]},
+  {label:'Разрешить отзывы:',kind:'check',name:'votes'},
+  {label:'Описание сайта:',kind:'memo',name:'description'},
+  {label:'Опубликовать:',kind:'submit'},];
+
+        var formDef2 = [{label:'Фамилия:',kind:'longtext',name:'lastname'},
+  {label:'Имя:',kind:'longtext',name:'firstname'},
+  {label:'Отчество:',kind:'longtext',name:'secondname'},
+  {label:'Возраст:',kind:'number',name:'age'},
+  {label:'Зарегистрироваться:',kind:'submit'},];
+
+        function formBuilder(form, arr) {
+
+          for (var i = 0; i < arr.length; i++) {
+
+            if (arr[i].kind == "submit") {
+              var submit = document.createElement("input");
+              submit.type = "submit"
+              submit.value = arr[i].label;
+              form.appendChild(submit);
+            } else {
+            var label = document.createElement("label");
+            label.innerHTML = arr[i].label;
+            form.appendChild(label);
+            }
+
+            switch (arr[i].kind) {
+              case "number":
+                var number = document.createElement("input");
+                number.type = "number"
+                number.name = arr[i].name;
+                form.appendChild(number);
+                break;
+              case "shorttext":
+                var email = document.createElement("input");
+                email.type = "email"
+                email.name = arr[i].name;
+                form.appendChild(email);
+                break;
+              case "memo":
+                var textarea = document.createElement("textarea");
+                textarea.name = arr[i].name;
+                form.appendChild(document.createElement("br"));
+                form.appendChild(textarea);
+                break;
+              case "combo":
+                var select = document.createElement("select");
+                select.name = arr[i].name;
+                var a = arr[i].variants;
+                for (var n = 0; n < a.length; n++) {
+                  var option = document.createElement("option");
+                  option.innerHTML = a[n].text;
+                  option.value = a[n].value;
+                  select.appendChild(option);
+                } 
+                form.appendChild(select);
+                break;
+              case "radio":
+                var a = arr[i].variants;
+                for (var n = 0; n < a.length; n++) {
+                  var radio = document.createElement("input");
+                  radio.type = "radio";
+                  radio.name = arr[i].name;
+                  radio.value = a[n].value;
+                  form.appendChild(radio);
+                  var span = document.createElement("span");
+                  span.innerHTML = a[n].text;
+                  form.appendChild(span);
+                } 
+                break;
+              case "check":
+                var checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.name = arr[i].name;
+                form.appendChild(checkbox);
+                break;
+              case "submit":
+                break;
+              default:
+                var text = document.createElement("input");
+                text.type = "text";
+                text.name = arr[i].name;
+                form.appendChild(text);
+            }
+
+            form.appendChild(document.createElement("br"));
+          }
+        }
+
+        var form1 = document.getElementById("form1");
+        var form2 = document.getElementById("form2");
+        formBuilder(form1, formDef1);
+        formBuilder(form2, formDef2);
+
+    </script>
+</body>
+</html>

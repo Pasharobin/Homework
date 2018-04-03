@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>N.27</title>
+</head>
+<body>
+    <style>
+        label {
+            display: inline-block;
+            width: 150px;
+        }
+
+        .error {
+            margin-left: 20px;
+            color: red; 
+        }
+    </style>
+    
+    <form action="http://fe.it-academy.by/TestForm.php" name="form1" id="form1">
+        <label>Разработчики:</label>
+        <input type="text" name="developers"><br>
+        <label>Название сайта:</label>
+        <input type="text" name="sitename"><br>
+        <label>URL сайта:</label>
+        <input type="text" name="siteurl"><br>
+        <label>Дата запуска сайта:</label>
+        <input type="text" name="date"><br>
+        <label>Посетителей в сутки:</label>
+        <input type="text" name="visitors"><br>
+        <label>E-mail для связи:</label>
+        <input type="text" name="email"><br>
+        <label>Рубрика каталога:</label>
+        <select name="division">
+            <option value="1">здоровье</option>
+            <option value="2">домашний уют</option>
+            <option value="3">бытовая техника</option>
+        </select><br>
+        <label>Размещение:</label>
+        <input type="radio" name="payment" value="1" id="first">
+        <label for="first">бесплатное</label>
+        <input type="radio" name="payment" value="2" id="two">
+        <label for="two">платное</label>
+        <input type="radio" name="payment" value="3" id="three">
+        <label for="three" id="last">VIP</label><br>
+        <label>Разрешить отзывы:</label>
+        <input type="checkbox" name="votes"><br>
+        <label>Описание сайта:</label><br>
+        <textarea name="description"></textarea><br>
+        <input type="submit" value="Опубликовать">
+    </form>
+
+    <script>
+
+        "use strict";
+
+        var form = document.forms["form1"];
+        form.addEventListener("submit", validateForm, false);
+
+        var developers = form.elements["developers"];
+        developers.addEventListener("blur", blurValidate, false);
+
+        var sitename = form.elements["sitename"];
+        sitename.addEventListener("blur", blurValidate, false);
+
+        var url = form.elements["siteurl"];
+        url.addEventListener("blur", blurValidate, false);
+
+        var date = form.elements["date"];
+        date.addEventListener("blur", blurValidate, false);
+
+        var visitors = form.elements["visitors"];
+        visitors.addEventListener("blur", blurValidate, false);
+
+        var email = form.elements["email"];
+        email.addEventListener("blur", blurValidate, false);
+
+        var division = form.elements["division"];
+        division.addEventListener("blur", blurValidate, false);
+
+        // var payment = form.elements["payment"];
+        // payment.addEventListener("blur", blurValidate, false);
+
+        var votes = form.elements["votes"];
+        votes.addEventListener("blur", blurValidate, false);
+
+        var description = form.elements["description"];
+        description.addEventListener("blur", blurValidate, false);
+
+        function blurValidate(EO) {
+            EO = EO || window.event;
+            deleteError(EO.currentTarget);
+
+            switch (EO.currentTarget.getAttribute("name")) {
+                case "votes":
+                    if (!EO.currentTarget.checked) {
+                    showError(EO.currentTarget, "Вы не разрешили оставлять отзывы!");
+                    }
+                    break;
+                case "visitors":
+                    if (!EO.currentTarget.value) {
+                    showError(EO.currentTarget, "Заполните поле!");
+                    }
+                    if (isNaN(EO.currentTarget.value.trim())) {
+                    showError(EO.currentTarget, "Введите количество посетителей в числовом формате!");    
+                    }
+                    break;
+                case "division":
+                    if (EO.currentTarget.value == "1") {
+                    showError(division, "Эта рубрика в данный момент не доступна!");
+                    }
+                    break;
+                default:
+                    if (!EO.currentTarget.value) {
+                    showError(EO.currentTarget, "Заполните поле!");
+                    }
+            }
+        }
+
+        function showError(elem, messag) {
+            var error = document.createElement("span");
+            error.innerHTML = messag;
+            error.className = "error";
+            elem.parentNode.insertBefore(error, elem.nextSibling);
+
+        }
+
+        function deleteError(elem) {
+            if (elem.nextSibling.className == "error") {
+                elem.parentNode.removeChild(elem.nextSibling);
+            }
+        }
+         
+
+        function validateForm(EO) {
+            EO = EO || window.event;
+
+            try {
+                var form = document.forms["form1"];
+                var developers = form.elements["developers"];
+                var developersValue = developers.value;
+
+                var sitename = form.elements["sitename"];
+                var nameValue = sitename.value;
+
+                var url = form.elements["siteurl"];
+                var urlValue = url.value;
+
+                var date = form.elements["date"];
+                var dateValue = date.value;
+                
+                var visitors = form.elements["visitors"];
+                var visitorsValue = parseInt(visitors.value.trim());
+
+                var email = form.elements["email"];
+                var emailValue = email.value;
+                
+                var division = form.elements["division"];
+                var divisionValue = division.value;
+
+                var payment = form.elements["payment"];
+                var paymentValue = payment.value;
+
+                var votes = form.elements["votes"];
+                var votesValue = votes.checked;
+
+                var description = form.elements["description"];
+                var descriptionValue = description.value;
+
+                var elements = form.children;
+                
+                for (var i=0; i < elements.length; i++) {
+                    if (elements[i].className == "error") {
+                        form.removeChild(elements[i]);
+                    }
+                }
+
+                if (!descriptionValue) {
+                    showError(description, "Заполните поле!");
+                    description.focus();
+                    EO.preventDefault();
+                }
+
+                if (!votesValue) {
+                    showError(votes, "Вы не разрешили оставлять отзывы!");
+                    votes.focus();
+                    EO.preventDefault();
+                }
+
+                if (!paymentValue) {
+                    showError(document.getElementById("last"), "Выберите способ размещения!");
+                    document.getElementById("first").scrollIntoView();
+                    EO.preventDefault();
+                }
+
+                if (divisionValue == "1") {
+                    showError(division, "Эта рубрика в данный момент не доступна!");
+                    division.focus();
+                    EO.preventDefault();
+                }
+
+                if (!emailValue) {
+                    showError(email, "Заполните поле!");
+                    email.focus();
+                    EO.preventDefault();
+                }
+
+                if (isNaN(visitorsValue)) {
+                    showError(visitors, "Введите количество посетителей в числовом формате!");
+                    visitors.focus();
+                    EO.preventDefault();
+                }
+
+                if (!dateValue) {
+                    showError(date, "Заполните поле!");
+                    date.focus();
+                    EO.preventDefault();
+                }
+
+                if (!urlValue) {
+                    showError(url, "Заполните поле!");
+                    url.focus();
+                    EO.preventDefault();
+                }
+
+                if (!nameValue) {
+                    showError(sitename, "Заполните поле!");
+                    sitename.focus();
+                    EO.preventDefault();
+                }
+
+                if (!developersValue) {
+                    showError(developers, "Заполните поле!");
+                    developers.focus();
+                    EO.preventDefault();
+                }
+
+            }
+            catch (ex) {
+                EO.preventDefault();
+            }
+        }
+    </script>
+
+</body>
+</html>
