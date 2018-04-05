@@ -78,15 +78,22 @@
         email.addEventListener("blur", blurValidate, false);
 
         var division = form.elements["division"];
-        division.addEventListener("blur", blurValidate, false);
+        division.addEventListener("change", changeValidate, false);
+
+        var payment = form.elements["payment"];
+        // console.log(payment.length);
+        for (var i = 0; i < payment.length; i++) {
+            payment[i].addEventListener("change", changeValidate, false)
+        }
+        // payment.addEventListener("change", changeValidate, false);
 
         var votes = form.elements["votes"];
-        votes.addEventListener("blur", blurValidate, false);
+        votes.addEventListener("change", changeValidate, false);
 
         var description = form.elements["description"];
         description.addEventListener("blur", blurValidate, false);
 
-        function blurValidate(EO) {
+        function changeValidate(EO) {
             EO = EO || window.event;
             deleteError(EO.currentTarget);
 
@@ -96,23 +103,35 @@
                     showError(EO.currentTarget, "Вы не разрешили оставлять отзывы!");
                     }
                     break;
-                case "visitors":
-                    if (!EO.currentTarget.value) {
-                    showError(EO.currentTarget, "Заполните поле!");
-                    }
-                    if (isNaN(EO.currentTarget.value.trim())) {
-                    showError(EO.currentTarget, "Введите количество посетителей в числовом формате!");    
+                case "payment":
+                    deleteError(document.getElementById("last"));
+                    if (EO.currentTarget.value == "1") {
+                    showError(document.getElementById("last"), "Данный тип размещения недоступен!");
+                    document.getElementById("first").scrollIntoView();
                     }
                     break;
                 case "division":
                     if (EO.currentTarget.value == "1") {
-                    showError(division, "Эта рубрика в данный момент не доступна!");
+                    showError(EO.currentTarget, "Эта рубрика в данный момент не доступна!");
                     }
                     break;
-                default:
-                    if (!EO.currentTarget.value) {
-                    showError(EO.currentTarget, "Заполните поле!");
-                    }
+            }
+        }
+
+        function blurValidate(EO) {
+            EO = EO || window.event;
+            deleteError(EO.currentTarget);
+
+            if (EO.currentTarget.getAttribute("name") == "visitors") {
+                if (!EO.currentTarget.value) {
+                showError(EO.currentTarget, "Заполните поле!");
+                }
+                if (isNaN(EO.currentTarget.value.trim())) {
+                showError(EO.currentTarget, "Введите количество посетителей в числовом формате!");    
+                }
+            } else          
+            if (!EO.currentTarget.value) {
+            showError(EO.currentTarget, "Заполните поле!");
             }
         }
 
@@ -188,6 +207,12 @@
 
                 if (!paymentValue) {
                     showError(document.getElementById("last"), "Выберите способ размещения!");
+                    document.getElementById("first").scrollIntoView();
+                    EO.preventDefault();
+                }
+
+                if (paymentValue == "1") {
+                    showError(document.getElementById("last"), "Данный тип размещения недоступен!");
                     document.getElementById("first").scrollIntoView();
                     EO.preventDefault();
                 }

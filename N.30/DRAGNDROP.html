@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>N.30</title>
+    <style>
+        .apple {
+            width: 136px;
+            height: 141px;
+            background-image: url(img/apple.png);
+            }
+    </style>
+</head>
+<body>
+    <div id="cont">
+        <div class="apple"></div>
+        <div class="apple"></div>
+        <div class="apple"></div>
+    </div>
+
+    <script>
+
+        "use strict";
+
+        var cont = document.getElementById("cont");
+        var arr = cont.children;
+        var apple = null;
+        var shiftX = null;
+        var shiftY = null;
+        var n = 1;
+
+        for (var i = arr.length - 1; i >= 0; i--) {
+            var x = arr[i].offsetLeft;
+            var y = arr[i].offsetTop;
+            arr[i].style.position = "absolute";
+            arr[i].style.left = x + "px";
+            arr[i].style.top = y + "px";
+            arr[i].addEventListener("mousedown", dragStart, false);
+            arr[i].addEventListener("mousemove", dragMove, false);
+            arr[i].addEventListener("mouseup", dragEnd, false);
+        }
+
+        function dragStart(EO) {
+            EO = EO || window.event;
+            
+            EO.target.style.cursor = "move";
+            apple = EO.target;
+            apple.style.zIndex = n++;
+            shiftX = EO.pageX - apple.offsetLeft;
+            shiftY = EO.pageY - apple.offsetTop;
+        }
+
+        function dragEnd(EO) {
+            EO = EO || window.event;
+            
+            EO.target.style.cursor = "default";
+            apple = null;
+        }
+
+        function dragMove(EO) {
+            EO = EO || window.event;
+        
+            if (apple) {
+            apple.style.left = Math.round(EO.pageX - shiftX) + "px";
+            apple.style.top = Math.round(EO.pageY - shiftY) + "px";
+            }
+        }
+    </script>
+</body>
+</html>
