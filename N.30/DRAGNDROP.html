@@ -6,6 +6,10 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>N.30</title>
     <style>
+        body {
+            height: 5000px;
+        }
+
         .apple {
             width: 136px;
             height: 141px;
@@ -13,7 +17,7 @@
             }
     </style>
 </head>
-<body>
+<body id="body">
     <div id="cont">
         <div class="apple"></div>
         <div class="apple"></div>
@@ -25,6 +29,7 @@
         "use strict";
 
         var cont = document.getElementById("cont");
+        var body = document.getElementById("body");
         var arr = cont.children;
         var apple = null;
         var shiftX = null;
@@ -38,9 +43,10 @@
             arr[i].style.left = x + "px";
             arr[i].style.top = y + "px";
             arr[i].addEventListener("mousedown", dragStart, false);
-            arr[i].addEventListener("mousemove", dragMove, false);
             arr[i].addEventListener("mouseup", dragEnd, false);
         }
+
+        body.addEventListener("mousemove", dragMove, false);
 
         function dragStart(EO) {
             EO = EO || window.event;
@@ -48,8 +54,8 @@
             EO.target.style.cursor = "move";
             apple = EO.target;
             apple.style.zIndex = n++;
-            shiftX = EO.pageX - apple.offsetLeft;
-            shiftY = EO.pageY - apple.offsetTop;
+            shiftX = Math.round(EO.pageX - apple.offsetLeft);
+            shiftY = Math.round(EO.pageY - apple.offsetTop);
         }
 
         function dragEnd(EO) {

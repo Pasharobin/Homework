@@ -81,11 +81,9 @@
         division.addEventListener("change", changeValidate, false);
 
         var payment = form.elements["payment"];
-        // console.log(payment.length);
         for (var i = 0; i < payment.length; i++) {
             payment[i].addEventListener("change", changeValidate, false)
         }
-        // payment.addEventListener("change", changeValidate, false);
 
         var votes = form.elements["votes"];
         votes.addEventListener("change", changeValidate, false);
