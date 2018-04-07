@@ -46,12 +46,11 @@
             arr[i].addEventListener("mouseup", dragEnd, false);
         }
 
-        body.addEventListener("mousemove", dragMove, false);
-
         function dragStart(EO) {
             EO = EO || window.event;
             
             EO.target.style.cursor = "move";
+            body.addEventListener("mousemove", dragMove, false);
             apple = EO.target;
             apple.style.zIndex = n++;
             shiftX = Math.round(EO.pageX - apple.offsetLeft);
@@ -62,6 +61,7 @@
             EO = EO || window.event;
             
             EO.target.style.cursor = "default";
+            body.removeEventListener("mousemove", dragMove, false);
             apple = null;
         }
 
