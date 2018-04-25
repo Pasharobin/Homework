@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>N.33</title>
+</head>
+<body>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        #clock-bg {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            background-color: yellow;
+            border-radius: 50%;
+        }
+
+        #dig-time {
+            position: absolute;
+            width: 30%;
+            left: 35%;
+            top: 18%;
+            text-align: center;
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .arrow {
+            position: absolute;
+            background-color: black;
+            border-radius: 10px;
+            z-index: 1;
+            transform-origin: 50% 100%;
+        }
+
+        #hour {
+            width: 4%;
+            height: 30%;
+            left: 48%;
+            top: 20%;
+        }
+
+        #minute {
+            width: 2%;
+            height: 40%;
+            left: 49%;
+            top: 10%;
+        }
+
+        #second {
+            width: 1%;
+            height: 45%;
+            left: 49.5%;
+            top: 5%;
+        }
+    </style>
+
+    <div id="clock-bg">
+        <div id="dig-time"></div>
+        <div class="arrow" id="hour"></div>
+        <div class="arrow" id="minute"></div>
+        <div class="arrow" id="second"></div>    
+    </div>
+
+    <script>
+         "use strict";
+
+        var clock = document.getElementById("clock-bg");
+
+        var numbersDeg = (360/12)*(Math.PI/180); // радиан между центрами чисел на циферблате
+        var radius = clock.offsetWidth*0.4; // расстояние от центра часов до центра чисел
+
+        var clockCenterX = clock.offsetLeft+clock.offsetWidth/2; // координаты центра часов
+        var clockCenterY = clock.offsetTop+clock.offsetHeight/2;
+
+        var secondDeg = 360/60; // градусов проходит секундная стрелка за одну секунду
+        var minuteDeg = 360/60/60; // градусов проходит минутная стрелка за одну секунду
+        var hourDeg = 360/60/60/12; // градусов проходит часовая стрелка за одну секунду
+
+        for (var i = 1; i <= 12; i++) {
+            var clockNumber = document.createElement("div");
+            clockNumber.textContent = i;
+            clockNumber.style.cssText = "position: absolute; width: 14%; height: 14%; background-color: green; border-radius: 50%; text-align: center; line-height: 180%; font-size: 30px;";
+            clock.appendChild(clockNumber);
+
+            var numberCenterX = clockCenterX + radius*Math.sin(numbersDeg*i); // координаты центра числа
+            var numberCenterY = clockCenterY - radius*Math.cos(numbersDeg*i);
+
+            clockNumber.style.left = Math.round(numberCenterX - clockNumber.offsetWidth/2) + 'px';
+            clockNumber.style.top = Math.round(numberCenterY - clockNumber.offsetHeight/2) + 'px'; 
+        }
+
+        function clockWork() {
+            var realTime = new Date();
+            var digTime = document.getElementById("dig-time");
+            digTime.innerHTML = formatTime(realTime);
+
+            var secondArrow = document.getElementById("second");
+            var minuteArrow = document.getElementById("minute");
+            var hourArrow = document.getElementById("hour");
+
+            var rotate = "rotate(" + realTime.getSeconds()*secondDeg + "deg)";
+            secondArrow.style.transform = rotate;
+
+            rotate = "rotate(" + (realTime.getMinutes()*60 + realTime.getSeconds())*minuteDeg + "deg)";
+            minuteArrow.style.transform = rotate;
+
+            var realHours = realTime.getHours();
+            if (realHours > 12) {
+                realHours = realHours - 12;
+            }
+            rotate = "rotate(" + (realHours*60*60 + realTime.getMinutes()*60 + realTime.getSeconds())*hourDeg + "deg)";
+            hourArrow.style.transform = rotate;
+        }
+
+        function formatTime(dt) {
+            var hours=dt.getHours();
+            var minutes=dt.getMinutes();
+            var seconds=dt.getSeconds();
+            return str0l(hours,2) + ':' + str0l(minutes,2) + ':' + str0l(seconds,2);
+        }
+
+        function str0l(val,len) {
+            var strVal=val.toString();
+            while ( strVal.length < len )
+                strVal='0'+strVal;
+            return strVal;
+        }
+
+        clockWork();
+        setInterval(clockWork, 1000);
+
+    </script>
+    
+</body>
+</html>
