@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>N.43</title>
+</head>
+<body>
+    <style>
+        #field {
+            width: 1000px;
+            height: 600px;
+            position: relative;
+            background-color: yellow;
+            /* border: 2px solid black; */
+            margin: 80px auto;
+        }
+
+        .racquet {
+            width: 1%;
+            height: 26%;
+            position: absolute;
+            /* border: 1px solid black; */
+        }
+
+        #racquet-left {
+            top: 37%;
+            background-color: green;
+        }
+
+        #racquet-right {
+            top: 37%;
+            left: 99%;
+            background-color: blue;
+        }
+
+        #ball {
+            width: 3%;
+            height: 5%;
+            position: absolute;
+            top: 47.5%;
+            left: 48.5%;
+            border-radius: 50%;
+            background-color: red;
+        }
+
+        #score {
+            width: 100%;
+            height: 10%;
+            position: absolute;
+            top: -10%;
+            font-size: 60px;
+            font-weight: bold;
+            line-height: 100%;
+            text-align: center;
+        }
+
+        #start {
+            width: 14%;
+            height: 6%;
+            position: absolute;
+            top: -7%;
+            font-size: 24px;
+            font-weight: bold;
+        }
+    </style>
+
+    <div id="field">
+        <div class="racquet" id="racquet-left"></div>
+        <div class="racquet" id="racquet-right"></div>
+        <div id="ball"></div>
+        <div id="score">0:0</div>
+        <button id="start">СТАРТ!</button>
+    </div>
+
+    <script>
+        var field = document.getElementById("field");
+        var ball = document.getElementById("ball");
+        var score = document.getElementById("score");
+        var racLeft = document.getElementById("racquet-left");
+        var racRight = document.getElementById("racquet-right");
+        var start = document.getElementById("start");
+
+        var ballX = ball.offsetLeft; // начальные координаты мяча
+        var ballY = ball.offsetTop;
+
+        var racLeftY = racLeft.offsetTop; // начальные координаты ракеток
+        var racRightY = racRight.offsetTop;
+
+        var speed = 6; // скорость мяча
+        var speedX; 
+        var speedY;
+        var racSpeed = 8; // скорости ракеток
+        var racSpeedLeft; 
+        var racSpeedRight; 
+
+        var a = 0; // счёт
+        var b = 0;
+
+        var flag = true; // флаг отражающий закончилась ли партия
+
+        function tick() {
+            flag = false;
+
+            ball.style.left = ball.offsetLeft + speedX + "px";
+            ball.style.top = ball.offsetTop + speedY + "px";
+
+            racLeft.style.top = racLeft.offsetTop + racSpeedLeft + "px";
+            racRight.style.top = racRight.offsetTop + racSpeedRight + "px"; 
+            if (racLeft.offsetTop < 0) {
+                racLeft.style.top = "0px";
+            }
+            if (racLeft.offsetTop + racLeft.offsetHeight > field.offsetHeight) {
+                racLeft.style.top = field.offsetHeight - racLeft.offsetHeight + "px";
+            }
+            if (racRight.offsetTop < 0) {
+                racRight.style.top = "0px";
+            }
+            if (racRight.offsetTop + racRight.offsetHeight > field.offsetHeight) {
+                racRight.style.top = field.offsetHeight - racRight.offsetHeight + "px";
+            }
+    
+            if (ball.offsetTop + ball.offsetHeight > field.offsetHeight) {
+                ball.style.top = field.offsetHeight - ball.offsetHeight + "px";
+                speedY = -speedY; 
+            }
+            if (ball.offsetTop < 0) {
+                ball.style.top = "0px";
+                speedY = -speedY; 
+            }
+            if (ball.offsetLeft + ball.offsetWidth > field.offsetWidth - racRight.offsetWidth) {
+                if (((ball.offsetTop + ball.offsetHeight/2) >  racRight.offsetTop) && ((ball.offsetTop + ball.offsetHeight/2) < (racRight.offsetTop + racRight.offsetHeight))) {
+                ball.style.left = field.offsetWidth - ball.offsetWidth - racRight.offsetWidth + "px";
+                speedX = -speedX;
+                }
+            }
+            if (ball.offsetLeft < racLeft.offsetWidth) {
+                if (((ball.offsetTop + ball.offsetHeight/2) >  racLeft.offsetTop) && ((ball.offsetTop + ball.offsetHeight/2) < (racLeft.offsetTop + racLeft.offsetHeight))) {
+                ball.style.left = racLeft.offsetWidth + "px";
+                speedX = -speedX;
+                }
+            }
+            if (ball.offsetLeft < 0) {
+                ball.style.left = "0px";
+                speedY = 0;
+                b++;
+                score.innerHTML = a + ":" + b;
+                flag = true;
+                return;
+            }
+            if (ball.offsetLeft + ball.offsetWidth > field.offsetWidth) {
+                ball.style.left = field.offsetWidth - ball.offsetWidth + "px";
+                speedY = 0;
+                a++;
+                score.innerHTML = a + ":" + b;
+                flag = true;
+                return; 
+            }
+            requestAnimationFrame(tick);
+        }
+
+        function randomInteger(min, max) {
+            var rand = min + Math.random() * (max + 1 - min);
+            rand = Math.floor(rand);
+            if (rand == 0) {
+               return randomInteger(min, max); 
+            }
+            return rand;
+        }
+
+
+        function startGame(EO) {
+            EO = EO || window.event;
+            
+            if (flag) {
+                speedX = speed*randomInteger(-1, 1);
+                speedY = speed*randomInteger(-1, 1);
+
+                ball.style.left = ballX + "px";
+                ball.style.top = ballY + "px";
+
+                racLeft.style.top = racLeftY + "px";
+                racRight.style.top = racRightY + "px";
+                requestAnimationFrame(tick);
+            }
+        }
+
+        function racquetMove(EO) {
+            EO = EO || window.event;
+
+            if (EO.keyCode == 16) {
+                racSpeedLeft = -racSpeed;
+            }
+            if (EO.keyCode == 38) {
+                racSpeedRight = -racSpeed;
+            }
+            if (EO.keyCode == 17) {
+                racSpeedLeft = racSpeed;
+            }
+            if (EO.keyCode == 40) {
+                racSpeedRight = racSpeed;
+            }
+        }
+
+        function racquetStop(EO) {
+            EO = EO || window.event;
+
+            if (EO.keyCode == 16 || EO.keyCode == 17) {
+                racSpeedLeft = 0;
+            }
+            if (EO.keyCode == 38 || EO.keyCode == 40) {
+                racSpeedRight = 0;
+            }
+        }
+
+        start.addEventListener("click", startGame, false);
+        window.addEventListener("keydown", racquetMove, false);
+        window.addEventListener("keyup", racquetStop, false);
+    </script>
+</body>
+</html>

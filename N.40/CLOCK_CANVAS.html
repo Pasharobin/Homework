@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>N.40</title>
+</head>
+<body>
+    <canvas id="canvas" width="400" height="400">
+        Обновите браузер
+    </canvas>
+
+    <script>
+        "use strict";
+
+        var canvas = document.getElementById("canvas");
+        var context = canvas.getContext("2d");
+
+        var numbersDeg = (360/12)*(Math.PI/180); // радиан между центрами чисел на циферблате
+        var radius = 160; // расстояние от центра часов до центра чисел
+
+        var secondDeg = 360/60; // градусов проходит секундная стрелка за одну секунду
+        var minuteDeg = 360/60/60; // градусов проходит минутная стрелка за одну секунду
+        var hourDeg = 360/60/60/12; // градусов проходит часовая стрелка за одну секунду
+
+        var secondLength = 180; // длинна секундной стрелки
+        var minuteLength = 150; // длинна секундной стрелки
+        var hourLength = 120; // длинна секундной стрелки
+
+        function clockWork() {
+            var realTime = new Date();
+
+            context.beginPath();
+            context.arc(200, 200, 200, 0, Math.PI*2, false);
+            context.fillStyle = "yellow";
+            context.fill();
+
+            context.fillStyle='black';
+            context.font='bold 30px Arial';
+            context.fillText( formatTime(realTime), 140, 110);
+
+            for (var i = 1; i <= 12; i++) {
+                var numberCenterX = Math.round(canvas.offsetWidth/2 + radius*Math.sin(numbersDeg*i)); // координаты центра числа
+                var numberCenterY = Math.round(canvas.offsetHeight/2 - radius*Math.cos(numbersDeg*i));
+                
+                context.beginPath();
+                context.arc(numberCenterX, numberCenterY, 30, 0, Math.PI*2, false);
+                context.fillStyle = "green";
+                context.fill();
+
+                context.fillStyle='black';
+                context.font='italic bold 34px Arial';
+                var n = 10; // смещение текста от центра
+                if (i >= 10) {
+                    n = 20;
+                }
+                context.fillText( i, numberCenterX - n, numberCenterY + 10);
+            }
+
+            context.lineCap = "round";
+            context.strokeStyle = "black";
+            context.lineWidth = "3";
+            context.beginPath();
+            context.moveTo(200,200);
+            var secondRotate = realTime.getSeconds()*secondDeg*(Math.PI/180); // угол поворота секундной стрелки в реальном времени в радианах
+            var secondX = canvas.offsetWidth/2 + secondLength*Math.sin(secondRotate);
+            var secondY = canvas.offsetHeight/2 - secondLength*Math.cos(secondRotate);
+            context.lineTo(secondX, secondY);
+            context.stroke();
+
+            context.lineWidth = "8";
+            context.beginPath();
+            context.moveTo(200,200);
+            var minuteRotate = (realTime.getMinutes()*60 + realTime.getSeconds())*minuteDeg*(Math.PI/180); // угол поворота минутной стрелки в реальном времени в радианах
+            var minuteX = canvas.offsetWidth/2 + minuteLength*Math.sin(minuteRotate);
+            var minuteY = canvas.offsetHeight/2 - minuteLength*Math.cos(minuteRotate);
+            context.lineTo(minuteX, minuteY);
+            context.stroke();
+
+            context.lineWidth = "18";
+            context.beginPath();
+            context.moveTo(200,200);
+            var realHours = realTime.getHours();
+            if (realHours > 12) {
+                realHours = realHours - 12;
+            }
+            var hourRotate = (realHours*60*60 + realTime.getMinutes()*60 + realTime.getSeconds())*hourDeg*(Math.PI/180); // угол поворота минутной стрелки в реальном времени в радианах
+            var hourX = canvas.offsetWidth/2 + hourLength*Math.sin(hourRotate);
+            var hourY = canvas.offsetHeight/2 - hourLength*Math.cos(hourRotate);
+            context.lineTo(hourX, hourY);
+            context.stroke();
+        }
+
+       function formatTime(dt) {
+           var hours=dt.getHours();
+           var minutes=dt.getMinutes();
+           var seconds=dt.getSeconds();
+           return str0l(hours,2) + ':' + str0l(minutes,2) + ':' + str0l(seconds,2);
+        }
+
+        function str0l(val,len) {
+           var strVal=val.toString();
+           while ( strVal.length < len )
+               strVal='0'+strVal;
+           return strVal;
+        }
+
+        clockWork();
+        setInterval(clockWork, 1000);
+    </script>
+</body>
+</html>
