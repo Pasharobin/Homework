@@ -343,5 +343,4 @@ window.addEventListener("keyup", batStop, false);
 restart.addEventListener("click", game.restart, false);
 game.blocksBuilder();
 game.reset();
-// console.log(game.ballSpeedX);
 RequestAnimationFrame(tick);
