@@ -1,0 +1,89 @@
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    font-size: 30px;
+    font-family: 'Permanent Marker', cursive;
+
+}
+
+#field {
+    position: relative;
+    width: 500px;
+    height: 800px;
+    background-color: yellow;
+    margin: 0 auto;
+    overflow: hidden;
+}
+
+#ball {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    background-color: red;
+    border-radius: 50%;
+    /* transform: translateZ(0); */
+
+}
+
+#bat {
+    position: absolute;
+    width: 20%;
+    height: 2%;
+    background-color: green;
+    border-radius: 10px;
+    top: 96%;
+    left: 40%;
+}
+
+.blocks {
+    position: absolute;
+    width: 10%;
+    height: 3%;
+    border-radius: 8px;
+    background-color: grey;
+}
+
+.bonus {
+    font-size: 20px;
+    text-align: center;
+    line-height: 100%;
+}
+
+#x2 {
+    background-color: green;
+}
+
+#long {
+    background-color: green;
+}
+
+#short {
+    background-color: red;
+}
+
+#score {
+    float: left;
+    margin: 0 5px;
+}
+
+#lifes {
+    float: right;
+    margin: 0 5px;
+    letter-spacing: 4px;
+    color: red;
+}
+
+#game-over {
+    position: absolute;
+    width: 100%;
+    height: 30%;
+    top: -30%;
+    text-align: center;
+    font-size: 50px;
+    opacity: 0;
+    transition-duration: 1s;
+    z-index: 1;
+
+}
