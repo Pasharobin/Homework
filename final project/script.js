@@ -14,21 +14,34 @@ window.msRequestAnimationFrame ||
 // ни один не доступен - будем работать просто по таймеру
 function(callback)
     { window.setTimeout(callback, 1000 / 60); }
-;
+; 
+
+var breakBlock = "sound/breakblock.wav";
+var bonusGood = "sound/bonus+.wav";
+var bonusBad = "sound/bonus-.wav";
+var gameOver = "sound/gameover.wav";
+var win = "sound/win.wav";
+var loseBall = "sound/lose.wav";
+function sound(link) {
+    var audio = new Audio(); // Создаём новый элемент Audio
+    audio.src = link; // Указываем путь к звуку
+    audio.autoplay = true; // Автоматически запускаем
+}
 
 var game = {
     ballSpeed: 7, // скорость шара
+    ballSpeedMob: 5, // скорость шара
     batSpeed: 8, // скорость биты
     lifesCount: 0, // счетчик жизней
     scoreCount: 0, // счетчик очков
     flag: true, // флаг потери жизни
     blocksLenght: 0, // начальное количество блоков
-    map: [
-        " b b b b b",
-        "b b b b b ",
-        " b b b b b",
-        "b b b b b ",
-        " b l x s b"],
+    map: [             // карта расположения блоков
+        " b b b b b",  // b (block) - простой блок
+        "b b b b b ",  // x (x2) - блок удвоения скорости мяча
+        " b l x s b",  // l (long) - блок увеличения ширины биты
+        "b b b b b ",  // s (short) - блок уменьшения ширины биты
+        " b b b b b"], // пробел - блок отсутствует
 
     blocksBuilder: function () {
         var h = 3; // расстояние между строками блоков в процентах
@@ -52,12 +65,12 @@ var game = {
                         case ("l"):
                             block.className = "blocks bonus";
                             block.id = "long";
-                            block.innerHTML = "---";
+                            block.innerHTML = "<i class='fas fa-arrows-alt-h'></i>";
                             break;
                         case ("s"):
                             block.className = "blocks bonus";
                             block.id = "short";
-                            block.innerHTML = "-";
+                            block.innerHTML = "<i class='fas fa-long-arrow-alt-right'></i><i class='fas fa-long-arrow-alt-left'></i>";
                             break;
                     }
                     field.appendChild(block);
@@ -71,38 +84,42 @@ var game = {
     blocksDestroyer: function () {
         var blocks = document.getElementsByClassName("blocks");
         for (var i = 0; i < blocks.length; i++) {
-            var blockH = new Position(blocks[i]);        
-            if (ballH.top() < blockH.bottom() && ballH.top() > blockH.top()) {
-                if (ballH.x() > blockH.left() && ballH.x() < blockH.right()) {
-                    ball.style.top = blockH.bottom() + "px";
+            var blockPos = new Position(blocks[i]);        
+            if (ballPos.top() < blockPos.bottom() && ballPos.top() > blockPos.top()) {
+                if (ballPos.x() > blockPos.left() && ballPos.x() < blockPos.right()) {
+                    ball.style.top = blockPos.bottom() + "px";
                     blocks[i].style.display = "none";
+                    window.navigator.vibrate(100);
                     this.scoreCounter();
                     bonus.check(blocks[i]);
                     speedY = -speedY;
                 }
             }
-            if (ballH.bottom() > blockH.top() && ballH.bottom() < blockH.bottom())  {
-                if (ballH.x() > blockH.left() && ballH.x() < blockH.right()) {
-                    ball.style.top = blockH.top() - ball.offsetHeight + "px";
+            if (ballPos.bottom() > blockPos.top() && ballPos.bottom() < blockPos.bottom())  {
+                if (ballPos.x() > blockPos.left() && ballPos.x() < blockPos.right()) {
+                    ball.style.top = blockPos.top() - ball.offsetHeight + "px";
                     blocks[i].style.display = "none";
+                    window.navigator.vibrate(100);
                     this.scoreCounter();
                     bonus.check(blocks[i]);
                     speedY = -speedY;
                 }
             }
-            if (ballH.y() < blockH.bottom() && ballH.y() > blockH.top()) {
-                if (ballH.left() > blockH.left() && ballH.left() < blockH.right()) {
-                    ball.style.left = blockH.right() + "px";
+            if (ballPos.y() < blockPos.bottom() && ballPos.y() > blockPos.top()) {
+                if (ballPos.left() > blockPos.left() && ballPos.left() < blockPos.right()) {
+                    ball.style.left = blockPos.right() + "px";
                     blocks[i].style.display = "none";
+                    window.navigator.vibrate(100);
                     this.scoreCounter();
                     bonus.check(blocks[i]);
                     speedX = -speedX;
                 }
             }
-            if (ballH.y() < blockH.bottom() && ballH.y() > blockH.top()) {
-                if (ballH.right() > blockH.left() && ballH.right() < blockH.right()) {
-                    ball.style.left = blockH.left() - ball.offsetWidth + "px";
+            if (ballPos.y() < blockPos.bottom() && ballPos.y() > blockPos.top()) {
+                if (ballPos.right() > blockPos.left() && ballPos.right() < blockPos.right()) {
+                    ball.style.left = blockPos.left() - ball.offsetWidth + "px";
                     blocks[i].style.display = "none";
+                    window.navigator.vibrate(100);
                     this.scoreCounter();
                     bonus.check(blocks[i]);
                     speedX = -speedX;
@@ -118,6 +135,7 @@ var game = {
         if (game.scoreCount == game.blocksLenght) {
             this.reset();
             this.over();
+            sound(win);
         }
     },
 
@@ -131,6 +149,7 @@ var game = {
     },
 
     lose: function () {
+        sound(loseBall);
         this.reset();
         var lifes = document.getElementById("lifes");
         var hearts = lifes.childNodes;
@@ -140,6 +159,7 @@ var game = {
         lifes.replaceChild(noHeart, hearts[this.lifesCount]);
         if (game.lifesCount > 1) {
             this.over();
+            sound(gameOver);
         }
         if (bonus.x2Flag) {
             bonus.x2Count = bonus.timer;
@@ -164,6 +184,8 @@ var game = {
         }
         game.blocksBuilder();
         window.addEventListener("keydown", batMove, false);
+        field.addEventListener('touchstart', startTouch, false);
+        field.addEventListener('touchmove', moveTouch, false);
     },
 
     over: function () {
@@ -173,6 +195,8 @@ var game = {
         gameOver.style.top = field.offsetHeight/2 - gameOver.offsetHeight/2 + "px";
         gameOver.style.opacity = "1";
         window.removeEventListener("keydown", batMove, false);
+        field.removeEventListener('touchstart', startTouch, false);
+        field.removeEventListener('touchmove', moveTouch, false);
     }
 };
 
@@ -187,32 +211,35 @@ var bonus = {
 
     check: function (elem) {
         if (elem.id == "x2") {
+            sound(bonusGood);
             this.x2Flag = true;
-        }
+        } else
         if (elem.id == "long") {
+            sound(bonusGood);
             if (this.shortFlag) {
                 this.shortCount = this.timer;
             }
             this.longFlag = true;
-        }
+        } else
         if (elem.id == "short") {
+            sound(bonusBad);
             if (this.longFlag) {
                 this.longCount = this.timer;
             }
             this.shortFlag = true;
-        }
+        } else
+        sound(breakBlock);
     },
 
     x2: function () {
         if (this.x2Flag) {
-            // console.log(bonus.x2Count);
             if (bonus.x2Count == 0) {
                 speedX = speedX*1.6;
                 speedY = speedY*1.6;
             }
             bonus.x2Count++;
             if (bonus.x2Count < this.timer) {
-                ball.style.boxShadow = -speedX + "px " + -speedY + "px 12px 3px orange";
+                ball.style.boxShadow = -speedX + "px " + -speedY + "px 15px 3px #f03017, " + -speedX*2 + "px " + -speedY*2 + "px 12px -5px #f03017";
             } else {
                 ball.style.boxShadow = "none";
                 speedX = speedX/1.6;
@@ -262,49 +289,47 @@ function Position(elem) {
     this.bottom = function() {return elem.offsetTop +elem.offsetHeight};
 };
 
-var ballH = new Position(ball);
-var batH = new Position(bat);
+var ballPos = new Position(ball);
+var batPos = new Position(bat);
 
 var batSpeed; 
 var speedX; 
 var speedY;
 
 function tick() {
-    ball.style.left = Math.round(ballH.left() + speedX) + "px";
-    ball.style.top = Math.round(ballH.top() + speedY) + "px";
-    // console.log(speedX + " " + speedY);
-    bat.style.left = batH.left() + batSpeed + "px";
-    if (batH.left() < 0) {
+    ball.style.left = Math.round(ballPos.left() + speedX) + "px";
+    ball.style.top = Math.round(ballPos.top() + speedY) + "px";
+    bat.style.left = batPos.left() + batSpeed + "px";
+    if (batPos.left() < 0) {
         bat.style.left = "0px";
     }
-    if (batH.right() > field.offsetWidth) {
+    if (batPos.right() > field.offsetWidth) {
         bat.style.left =field.offsetWidth - bat.offsetWidth + "px";
     }
     game.blocksDestroyer();
     bonus.x2();
     bonus.long();
     bonus.short();
-    if (ballH.bottom() > batH.top() && ballH.y() < batH.top()) {
-        if (ballH.x() >  batH.left() && ballH.x() < batH.right()) {
+    if (ballPos.bottom() > batPos.top() && ballPos.y() < batPos.top()) {
+        if (ballPos.x() >  batPos.left() && ballPos.x() < batPos.right()) {
         ball.style.top = bat.offsetTop - ball.offsetHeight + "px";
         speedY = -speedY;
         }
     }
 
-    if (ballH.bottom() > field.offsetHeight) {
+    if (ballPos.bottom() > field.offsetHeight) {
         ball.style.top = field.offsetHeight - ball.offsetHeight + "px";
         game.lose();
-        // speedY = -speedY; 
     }
-    if (ballH.top() < 0) {
+    if (ballPos.top() < 0) {
         ball.style.top = "0px";
         speedY = -speedY; 
     }
-    if (ballH.right() > field.offsetWidth) {
+    if (ballPos.right() > field.offsetWidth) {
         ball.style.left = field.offsetWidth - ball.offsetWidth + "px";
         speedX = -speedX;
     }
-    if (ballH.left() < 0) {
+    if (ballPos.left() < 0) {
         ball.style.left = "0px";
         speedX = -speedX;
     }
@@ -338,9 +363,34 @@ function batStop(EO) {
     }
 }
 
+function startTouch(EO) {
+    EO = EO || window.event;
+
+    EO.preventDefault();
+    if (game.flag) {
+        speedX = game.ballSpeedMob;
+        speedY = game.ballSpeedMob;
+        game.flag = false;
+    }
+}
+
+function moveTouch(EO) {
+    EO = EO || window.event;
+
+    EO.preventDefault();
+    if (event.targetTouches.length == 1) {
+        var touch = event.targetTouches[0];
+        bat.style.left = Math.round(touch.pageX - bat.offsetWidth/2) + "px";
+    }
+}
+
+field.addEventListener('touchstart', startTouch, false);
+field.addEventListener('touchmove', moveTouch, false);
+
 window.addEventListener("keydown", batMove, false);
 window.addEventListener("keyup", batStop, false);
 restart.addEventListener("click", game.restart, false);
+restart.addEventListener('touchend', game.restart, false);
 game.blocksBuilder();
 game.reset();
 RequestAnimationFrame(tick);
